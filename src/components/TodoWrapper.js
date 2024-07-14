@@ -1,43 +1,34 @@
 import React, { useState } from "react";
 import { Todo } from "./Todo";
 import { TodoForm } from "./TodoForm";
-import { v4 as uuidv4 } from "uuid";
 import { EditTodoForm } from "./EditTodoForm";
+import { useDispatch, useSelector } from "react-redux";
+import { addTodoFun, deleteTodoFun, editTaskFun, editTodoFun, toggleCompleteFun } from "./store/slice/todoSlice";
 
 export const TodoWrapper = () => {
-  const [todos, setTodos] = useState([]);
+  const dispatch = useDispatch();
+  const todos = useSelector((state) => state.todoList);
 
   const addTodo = (todo) => {
-    setTodos([
-      ...todos,
-      { id: uuidv4(), task: todo, completed: false, isEditing: false },
-    ]);
+    dispatch(addTodoFun(todo));
   }
 
-  const deleteTodo = (id) => setTodos(todos.filter((todo) => todo.id !== id));
+  const deleteTodo = (id) => dispatch(deleteTodoFun(id));
 
   const toggleComplete = (id) => {
-    setTodos(
-      todos.map((todo) =>
-        todo.id === id ? { ...todo, completed: !todo.completed } : todo
-      )
-    );
+    dispatch(toggleCompleteFun(id));
   }
 
   const editTodo = (id) => {
-    setTodos(
-      todos.map((todo) =>
-        todo.id === id ? { ...todo, isEditing: !todo.isEditing } : todo
-      )
-    );
+    dispatch(editTodoFun(id));
   }
 
   const editTask = (task, id) => {
-    setTodos(
-      todos.map((todo) =>
-        todo.id === id ? { ...todo, task, isEditing: !todo.isEditing } : todo
-      )
-    );
+    const data = {
+      id: id,
+      task: task,
+    }
+    dispatch(editTaskFun(data));
   };
 
   return (
@@ -45,12 +36,12 @@ export const TodoWrapper = () => {
       <h1>Get Things Done !</h1>
       <TodoForm addTodo={addTodo} />
       {/* display todos */}
-      {todos.map((todo) =>
+      {todos && todos.map((todo, index) =>
         todo.isEditing ? (
-          <EditTodoForm editTodo={editTask} task={todo} />
+          <EditTodoForm key={index} editTodo={editTask} task={todo} />
         ) : (
           <Todo
-            key={todo.id}
+            key={index}
             task={todo}
             deleteTodo={deleteTodo}
             editTodo={editTodo}
