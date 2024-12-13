@@ -1,5 +1,13 @@
 @import url('https://fonts.googleapis.com/css2?family=Poppins&display=swap');
 
+:root {
+  --primary-color: #8758ff;
+  --bg-dark: #1A1A40;
+  --text-light: #fff;
+  --text-muted: #ffffff4d;
+  --completed-color: #c5aeff;
+}
+
 * {
   font-family: 'Poppins', sans-serif;
   margin: 0;
@@ -8,7 +16,7 @@
 }
 
 body {
-  background: #8758ff;
+  background: var(--primary-color);
   display: flex;
   justify-content: center;
   align-items: center;
@@ -19,13 +27,13 @@ body {
 }
 
 h1 {
-  color: #fff;
+  color: var(--text-light);
   margin-bottom: 0.5rem;
   font-size: 1.75rem;
 }
 
 .TodoWrapper {
-  background: #1A1A40;
+  background: var(--bg-dark);
   margin-top: 5rem;
   padding: 2rem;
   border-radius: 5px;
@@ -39,21 +47,20 @@ h1 {
 .todo-input {
   outline: none;
   background: none;
-  border: 1px solid #8758ff;
+  border: 1px solid var(--primary-color);
   padding: 0.5rem 1rem;
-  margin-top: 1rem;
-  margin-bottom: 2rem;
+  margin: 1rem 0 2rem;
   width: 300px;
-  color: #fff;
+  color: var(--text-light);
 }
 
 .todo-input::placeholder {
-  color: #ffffff4d;
+  color: var(--text-muted);
 }
 
 .todo-btn {
-  background: #8758ff;
-  color: #fff;
+  background: var(--primary-color);
+  color: var(--text-light);
   border: none;
   padding: 0.55rem;
   cursor: pointer;
@@ -63,8 +70,8 @@ h1 {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  background: #8758ff;
-  color: #fff;
+  background: var(--primary-color);
+  color: var(--text-light);
   padding: 0.75rem 1rem;
   border-radius: 5px;
   margin-bottom: 1rem;
@@ -75,12 +82,12 @@ h1 {
 }
 
 .incompleted {
-  color: #fff;
+  color: var(--text-light);
   cursor: pointer;
 }
 
 .completed {
-  color: #c5aeff;
+  color: var(--completed-color);
   text-decoration: line-through;
   cursor: pointer;
 }
@@ -89,4 +96,3 @@ h1 {
 .delete-icon {
   cursor: pointer;
 }
- 

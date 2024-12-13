@@ -8,17 +8,26 @@ const persistConfig = {
   storage,
 };
 
+// Create persisted reducer once
 const persistedReducer = persistReducer(persistConfig, todoSlice);
 
+// Configure store with optimized middleware
 const store = configureStore({
   reducer: persistedReducer,
-  middleware: (getDefaultMiddleware) =>
+  middleware: getDefaultMiddleware => 
     getDefaultMiddleware({
       serializableCheck: {
         ignoredActions: ['persist/PERSIST', 'persist/REHYDRATE'],
       },
+      // Enable immutability checks only in development
+      immutableCheck: process.env.NODE_ENV === 'development',
+      // Enable serializable check only in development  
+      serializableCheck: process.env.NODE_ENV === 'development',
     }),
+  // Enable devTools only in development
+  devTools: process.env.NODE_ENV === 'development'
 });
 
+// Create persistor
 export const persistor = persistStore(store);
 export default store;
