@@ -1,78 +1,82 @@
-import React, { useState, useEffect, useCallback } from 'react'
+import React, { useState, useEffect, useCallback, useMemo } from 'react'
 import { TodoForm } from './TodoForm'
 import { v4 as uuidv4 } from 'uuid';
 import { Todo } from './Todo';
 import { EditTodoForm } from './EditTodoForm';
 
 export const TodoWrapperLocalStorage = () => {
-    const [todos, setTodos] = useState([]);
+    const [todos, setTodos] = useState(() => {
+        // Initialize state from localStorage only once
+        return JSON.parse(localStorage.getItem('todos')) || [];
+    });
 
+    // Save to localStorage whenever todos change
     useEffect(() => {
-        const savedTodos = JSON.parse(localStorage.getItem('todos')) || [];
-        setTodos(savedTodos);
-    }, []);
-
-    const updateTodosAndStorage = useCallback((newTodos) => {
-        setTodos(newTodos);
-        localStorage.setItem('todos', JSON.stringify(newTodos));
-    }, []);
-
-    const addTodo = useCallback(todo => {
-        const newTodos = [...todos, {
-            id: uuidv4(),
-            task: todo,
-            completed: false,
-            isEditing: false
-        }];
-        updateTodosAndStorage(newTodos);
-    }, [todos, updateTodosAndStorage]);
-
-    const toggleComplete = useCallback(id => {
-        const newTodos = todos.map(todo => 
-            todo.id === id ? {...todo, completed: !todo.completed} : todo
-        );
-        updateTodosAndStorage(newTodos);
-    }, [todos, updateTodosAndStorage]);
-
-    const deleteTodo = useCallback(id => {
-        const newTodos = todos.filter(todo => todo.id !== id);
-        updateTodosAndStorage(newTodos);
-    }, [todos, updateTodosAndStorage]);
-
-    const editTodo = useCallback(id => {
-        setTodos(todos.map(todo => 
-            todo.id === id ? {...todo, isEditing: !todo.isEditing} : todo
-        ));
+        localStorage.setItem('todos', JSON.stringify(todos));
     }, [todos]);
 
-    const editTask = useCallback((task, id) => {
-        const newTodos = todos.map(todo => 
-            todo.id === id ? {...todo, task, isEditing: !todo.isEditing} : todo
+    const addTodo = useCallback(task => {
+        setTodos(prevTodos => [...prevTodos, {
+            id: uuidv4(),
+            task,
+            completed: false,
+            isEditing: false
+        }]);
+    }, []);
+
+    const toggleComplete = useCallback(id => {
+        setTodos(prevTodos => 
+            prevTodos.map(todo => 
+                todo.id === id ? {...todo, completed: !todo.completed} : todo
+            )
         );
-        updateTodosAndStorage(newTodos);
-    }, [todos, updateTodosAndStorage]);
+    }, []);
+
+    const deleteTodo = useCallback(id => {
+        setTodos(prevTodos => prevTodos.filter(todo => todo.id !== id));
+    }, []);
+
+    const editTodo = useCallback(id => {
+        setTodos(prevTodos => 
+            prevTodos.map(todo => 
+                todo.id === id ? {...todo, isEditing: !todo.isEditing} : todo
+            )
+        );
+    }, []);
+
+    const editTask = useCallback((task, id) => {
+        setTodos(prevTodos => 
+            prevTodos.map(todo => 
+                todo.id === id ? {...todo, task, isEditing: false} : todo
+            )
+        );
+    }, []);
+
+    const renderedTodos = useMemo(() => (
+        todos.map((todo) => (
+            todo.isEditing ? (
+                <EditTodoForm 
+                    key={todo.id}
+                    editTodo={editTask} 
+                    task={todo} 
+                />
+            ) : (
+                <Todo 
+                    key={todo.id}
+                    task={todo} 
+                    toggleComplete={toggleComplete} 
+                    deleteTodo={deleteTodo} 
+                    editTodo={editTodo} 
+                />
+            )
+        ))
+    ), [todos, editTask, toggleComplete, deleteTodo, editTodo]);
 
     return (
         <div className='TodoWrapper'>
             <h1>Get Things Done!</h1>
             <TodoForm addTodo={addTodo} />
-            {todos.map((todo) => (
-                todo.isEditing ? (
-                    <EditTodoForm 
-                        key={todo.id}
-                        editTodo={editTask} 
-                        task={todo} 
-                    />
-                ) : (
-                    <Todo 
-                        key={todo.id}
-                        task={todo} 
-                        toggleComplete={toggleComplete} 
-                        deleteTodo={deleteTodo} 
-                        editTodo={editTodo} 
-                    />
-                )
-            ))}
+            {renderedTodos}
         </div>
     );
 };

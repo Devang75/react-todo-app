@@ -16,13 +16,12 @@ const store = configureStore({
   reducer: persistedReducer,
   middleware: getDefaultMiddleware => 
     getDefaultMiddleware({
-      serializableCheck: {
+      // Enable serializable check with ignored actions for redux-persist
+      serializableCheck: process.env.NODE_ENV === 'development' ? {
         ignoredActions: ['persist/PERSIST', 'persist/REHYDRATE'],
-      },
+      } : false,
       // Enable immutability checks only in development
       immutableCheck: process.env.NODE_ENV === 'development',
-      // Enable serializable check only in development  
-      serializableCheck: process.env.NODE_ENV === 'development',
     }),
   // Enable devTools only in development
   devTools: process.env.NODE_ENV === 'development'
